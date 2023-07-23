@@ -26,7 +26,7 @@ video and setup videorecorder. The video is streamed with MJPEG protocol, Flask 
 ([see here](https://blog.miguelgrinberg.com/post/video-streaming-with-flask)) . The class FileWriter provides functionality to merge received frames into media-container (AVI only).
 The instance of FileWriter starts worker thread which pull frames from queue and process them - the frame taken from queue is resized if needed and appended to media-container.
 
-## updated [date]
+## updated 07 Jul 2023
 During the experimental operation it was found that Flask application (http server) becomes irresponsive when using camera resolution 1024 x 768. 
 I decided to simplify design by eliminating the streaming of the video into browser. Also it was revealed that camera is able to give only 2 frames per second.
 I'm going to explore the picamera API documentation ([see here](https://picamera.readthedocs.io/en/release-1.13/index.html)) to get more understanding and might be I will manage to eliminate limitation of 2 FPS.
