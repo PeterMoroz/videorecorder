@@ -11,6 +11,11 @@ import cv2
 
 import numpy as np
 
+import glob
+import os
+import re
+
+
 class Camcorder:
     def __init__(self, resolution, framerate, base_path, max_fragment_duration=3600, codec='MJPG'):
         self.camera = PiCamera()
@@ -36,6 +41,8 @@ class Camcorder:
         
     def start(self):
         self.stopped = False
+        self.fragment_count = self._get_last_fragment_count()
+        logging.debug(f"starting from {self.fragment_count}")
         self._start_fragment()
         self.worker_thread.start()
 
@@ -43,7 +50,20 @@ class Camcorder:
         self.stopped = True
         if not self.worker_thread is None:
             self.worker_thread.join()
-            
+
+    def _get_last_fragment_count(self):
+        base_dir = os.path.dirname(self.base_path)
+        files = list(filter(os.path.isfile, glob.glob(base_dir + "/*.avi")))
+        if not files:
+            return -1
+
+        files.sort(key=os.path.getctime)
+        latest_file = files[len(files)-1]
+        filename = os.path.basename(latest_file)
+        result = re.search('\d+', filename)
+        idx = int(result.group())
+        return idx
+    
     def _start_fragment(self):
         self.frame_count = 0
         self.fragment_duration = 0
