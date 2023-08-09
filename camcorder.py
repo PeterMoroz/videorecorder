@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 
 class Camcorder:
-    def __init__(self, resolution, framerate, filename_base, max_fragment_duration=3600, codec='MJPG'):
+    def __init__(self, resolution, framerate, base_path, max_fragment_duration=3600, codec='MJPG'):
         self.camera = PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
@@ -25,7 +25,7 @@ class Camcorder:
         self.max_fragment_duration = max_fragment_duration
         self.frame_dimension = resolution
         self.framerate = framerate
-        self.filename_base = filename_base
+        self.base_path = base_path
         
         # logging.debug(f"max fragment duration {self.max_fragment_duration}")
         # logging.debug(f"framerate {self.framerate}")
@@ -48,7 +48,7 @@ class Camcorder:
         self.frame_count = 0
         self.fragment_duration = 0
         self.fragment_count += 1
-        filename = "{}-{}.avi".format(self.filename_base, self.fragment_count)
+        filename = "{}-{}.avi".format(self.base_path, self.fragment_count)
         self.writer = cv2.VideoWriter(filename, self.fourcc, self.framerate, self.frame_dimension, True)
         
     def _write_frame(self, frame):

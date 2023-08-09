@@ -14,6 +14,8 @@ app = Flask(__name__)
 
 camcorder = None
 
+#TO DO: some kind of file manager with feature of archiving of existing files
+
 
 @app.route('/')
 def index():
@@ -30,17 +32,18 @@ if __name__ == '__main__':
     
     ap = argparse.ArgumentParser()
     ap.add_argument("-p", "--port", type=int, default=9000, help="port, the server listen to (1024 to 65535)")
+    ap.add_argument("-f", "--file", type=str, help="file, the base name (together with fulle path) of output file", required=True)
     args = vars(ap.parse_args())
     
+    basefile = args['file']
     resolution = (1024, 768)
     framerate = 2
     
     logging.info("camcorder - start")
-    camcorder = Camcorder(resolution, framerate, 'output', max_fragment_duration=900)
+    camcorder = Camcorder(resolution, framerate, basefile, max_fragment_duration=900)
     camcorder.start()
     logging.debug("camcorder - started")
     
-       
     logging.info("application - start")
     # here is an explanation of arguments
     # https://www.twilio.com/blog/how-run-flask-application
