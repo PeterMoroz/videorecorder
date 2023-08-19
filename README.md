@@ -41,12 +41,13 @@ It looks obvious that the videorecorder should be started automatically when sys
 - cron 
 
 [Run a program on Raspberry Pi at startup](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/?ref=nickjvturner.com)
-Because our service is not trivial and rely on the network and storage subsystems I choose the systemd because it allows 
+
+Because our service is not trivial and rely on the network and storage subsystems I choose the **systemd** because it allows 
 to define when a service starts, which resources it is allowed to access and which dependencies need to be met.
 
 ### systemd units
 The resources that systemd manages are called **units**. There are different types of them: services, sockets, targets, etc. Units are described
-in special configuration files that called unit files. The systemd manager scans [many directories to load unit files] (https://man7.org/linux/man-pages/man5/systemd.unit.5.html) .
+in special configuration files that called unit files. The systemd manager scans [many directories to load unit files](https://man7.org/linux/man-pages/man5/systemd.unit.5.html) .
 
 ### system and user services
 systemd supports both *system* and *user* services. Regular services are usually found at /etc/systemd/system/ and managed with root privileges.
@@ -70,10 +71,13 @@ WantedBy=default.target
 ```
 
 Depending on systemd version it might be necessary to reload the user daemon so that our service could be found and started.
+
 `$ systemctl --user daemon-reload`
 
 To start the service
+
 `$ systemctl --user start videorecorder`
 
 And to run it after every boot
+
 `$ systemctl --user enable videorecorder`
