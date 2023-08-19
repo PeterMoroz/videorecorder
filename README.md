@@ -26,7 +26,54 @@ video and setup videorecorder. The video is streamed with MJPEG protocol, Flask 
 ([see here](https://blog.miguelgrinberg.com/post/video-streaming-with-flask)) . The class FileWriter provides functionality to merge received frames into media-container (AVI only).
 The instance of FileWriter starts worker thread which pull frames from queue and process them - the frame taken from queue is resized if needed and appended to media-container.
 
-### updated 07 Jul 2023
+### Design changes (07 Jul 2023)
 During the experimental operation it was found that Flask application (http server) becomes irresponsive when using camera resolution 1024 x 768. 
 I decided to simplify design by eliminating the streaming of the video into browser. Also it was revealed that camera is able to give only 2 frames per second.
-I'm going to explore the picamera API documentation ([see here](https://picamera.readthedocs.io/en/release-1.13/index.html)) to get more understanding and might be I will manage to eliminate limitation of 2 FPS.
+I'm going to explore the [picamera API documentation](https://picamera.readthedocs.io/en/release-1.13/index.html) to get more understanding and might be I will manage to eliminate limitation of 2 FPS.
+
+
+### run as a service
+It looks obvious that the videorecorder should be started automatically when system startup. There are a few ways to do it:
+- rc.local
+- .bashrc
+- init.d
+- systemd
+- cron 
+
+[Run a program on Raspberry Pi at startup](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/?ref=nickjvturner.com)
+Because our service is not trivial and rely on the network and storage subsystems I choose the systemd because it allows 
+to define when a service starts, which resources it is allowed to access and which dependencies need to be met.
+
+### systemd units
+The resources that systemd manages are called **units**. There are different types of them: services, sockets, targets, etc. Units are described
+in special configuration files that called unit files. The systemd manager scans [many directories to load unit files] (https://man7.org/linux/man-pages/man5/systemd.unit.5.html) .
+
+### system and user services
+systemd supports both *system* and *user* services. Regular services are usually found at /etc/systemd/system/ and managed with root privileges.
+The other type of systemd services is user ones. They are designed to be run by unprivileged users.
+
+Our service is going to be called 'videorecorder.service' and the corresponding unit file would be placed in ~/.config/systemd/user/videorecorder.service :
+
+```
+[Unit]
+Description=videorecorder
+After=network.target
+
+[Service]
+WorkingDirectory=/home/pi/videorecorder
+ExecStart=python3 videorecorder.py -f /media/pi/REMOVABLE/output
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+```
+
+Depending on systemd version it might be necessary to reload the user daemon so that our service could be found and started.
+`$ systemctl --user daemon-reload`
+
+To start the service
+`$ systemctl --user start videorecorder`
+
+And to run it after every boot
+`$ systemctl --user enable videorecorder`

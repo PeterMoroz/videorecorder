@@ -1,0 +1,12 @@
+[Unit]
+Description=videorecorder
+After=network.target
+
+[Service]
+WorkingDirectory=/home/pi/videorecorder
+ExecStart=python3 videorecorder.py -f /media/pi/REMOVABLE/output
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
